@@ -24,19 +24,33 @@ interface ContactFormData {
     message: string;
 }
 
-// Convert file to base64
-const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-            const result = reader.result as string;
-            // Remove the data URL prefix (e.g., "data:application/pdf;base64,")
-            const base64 = result.split(',')[1];
-            resolve(base64);
-        };
-        reader.onerror = (error) => reject(error);
-    });
+// Upload file to Cloudinary and return public URL
+const uploadToCloudinary = async (file: File): Promise<string> => {
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+    if (!cloudName || !uploadPreset) {
+        throw new Error('Cloudinary configuration missing');
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', uploadPreset);
+
+    const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`,
+        {
+            method: 'POST',
+            body: formData,
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error('Failed to upload file to Cloudinary');
+    }
+
+    const data = await response.json();
+    return data.secure_url; // This is the public URL
 };
 
 // Submit application form to Airtable
@@ -66,13 +80,14 @@ export const submitApplicationToAirtable = async (data: ApplicationFormData) => 
         // Handle file upload if provided
         if (data.resumeFile && data.resumeFile.length > 0) {
             const file = data.resumeFile[0];
-            const base64Content = await fileToBase64(file);
 
-            // Airtable attachment format
+            // Upload to Cloudinary first
+            const fileUrl = await uploadToCloudinary(file);
+
+            // Add Cloudinary URL to Airtable
             fields['Resume/CV'] = [
                 {
-                    filename: file.name,
-                    url: `data:${file.type};base64,${base64Content}`,
+                    url: fileUrl,
                 },
             ];
         }
