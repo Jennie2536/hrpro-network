@@ -69,7 +69,7 @@ export const submitApplicationToAirtable = async (data: ApplicationFormData) => 
             'Location': data.location,
             'Years of Experience': data.yearsOfExperience,
             'Areas of Expertise': data.areasOfExpertise,
-            'Why Join': data.whyJoin,
+            'Why Join?': data.whyJoin,
         };
 
         // Add LinkedIn profile if provided
