@@ -84,12 +84,8 @@ export const submitApplicationToAirtable = async (data: ApplicationFormData) => 
             // Upload to Cloudinary first
             const fileUrl = await uploadToCloudinary(file);
 
-            // Add Cloudinary URL to Airtable
-            fields['Resume/CV'] = [
-                {
-                    url: fileUrl,
-                },
-            ];
+            // Add Cloudinary URL to Airtable as text URL
+            fields['Resume/CV'] = fileUrl;
         }
 
         // Make API request to Airtable
