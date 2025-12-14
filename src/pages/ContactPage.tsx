@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { showSuccess, showError } from '@/utils/toast';
 import { submitContactToAirtable } from '@/services/airtable';
+import { trackContactFormSubmitted } from '@/utils/analytics';
 import { MapPin, Mail, Phone } from 'lucide-react';
 
 const contactFormSchema = z.object({
@@ -43,6 +44,9 @@ const ContactPage = () => {
       console.log('Submitting contact form to Airtable...', values);
 
       await submitContactToAirtable(values);
+
+      // Track successful submission
+      trackContactFormSubmitted(values.subject || 'general', 'contact_page');
 
       showSuccess('Your message has been sent successfully! We will get back to you shortly.');
       form.reset();

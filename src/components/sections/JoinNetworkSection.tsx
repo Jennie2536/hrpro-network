@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { showSuccess, showError } from '@/utils/toast';
 import { submitApplicationToAirtable } from '@/services/airtable';
+import { trackApplicationSubmitted } from '@/utils/analytics';
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: 'Full name must be at least 2 characters.' }),
@@ -61,6 +62,9 @@ const JoinNetworkSection = () => {
       console.log('Submitting form to Airtable...', values);
 
       await submitApplicationToAirtable(values);
+
+      // Track successful submission
+      trackApplicationSubmitted('hr_professional');
 
       showSuccess('Application submitted successfully! We will get back to you shortly.');
       form.reset();

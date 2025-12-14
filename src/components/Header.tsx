@@ -3,10 +3,26 @@ import { Link } from 'react-router-dom';
 import { CustomButton } from './CustomButton';
 import { Menu, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { trackCTAClick, trackApplicationStarted, trackNavigationClick } from '@/utils/analytics';
 
 const Header = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const isMobile = useIsMobile();
+
+  const handleGetStartedClick = () => {
+    trackCTAClick('Get Started', 'Main Navigation');
+    trackApplicationStarted('navigation');
+    trackNavigationClick('application_form');
+    window.location.href = '#join-network';
+  };
+
+  const handleMobileGetStartedClick = () => {
+    trackCTAClick('Get Started', 'Mobile Navigation');
+    trackApplicationStarted('mobile_navigation');
+    trackNavigationClick('application_form');
+    window.location.href = '#join-network';
+    setIsOpen(false);
+  };
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -42,7 +58,7 @@ const Header = () => {
                 {link.name}
               </Link>
             ))}
-            <CustomButton variant="secondary" onClick={() => window.location.href = '#join-network'}>
+            <CustomButton variant="secondary" onClick={handleGetStartedClick}>
               Get Started
             </CustomButton>
           </nav>
@@ -62,7 +78,7 @@ const Header = () => {
                 {link.name}
               </Link>
             ))}
-            <CustomButton variant="secondary" onClick={() => { window.location.href = '#join-network'; setIsOpen(false); }}>
+            <CustomButton variant="secondary" onClick={handleMobileGetStartedClick}>
               Get Started
             </CustomButton>
           </nav>
